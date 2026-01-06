@@ -14,7 +14,7 @@ class StringFormatter:
 
     RETURN_TYPES = ("STRING",)
     FUNCTION = "process"
-    CATEGORY = "utils/string"
+    CATEGORY = "Numachang"
 
     def process(self, text, remove_comments, remove_newlines, fix_commas):
         # 1. Remove comments
