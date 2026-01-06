@@ -1,18 +1,18 @@
-# ComfyUI Prompt Utilities
+# ComfyUI Numachang Prompt Utils
 
-A collection of utility nodes for ComfyUI to help with prompt engineering.
+プロンプトエンジニアリングを支援するComfyUI用のユーティリティノード集です。
 
-## Nodes
+## ノード
 
-### String Formatter
-An enhanced string node that allows for cleaner prompt management.
+### String Formatter (文字列フォーマッター)
+プロンプト管理をより便利にするための拡張文字列ノードです。
 
-**Features:**
-- **Source code style comments**: Support for `//` and `#` to comment out parts of the prompt.
-- **Remove Newlines**: Automatically joins lines into a single line string, useful for keeping prompts organized in the UI but clean in the output.
-- **Auto Comma Spacing**: Ensures every comma is followed by a space.
+**機能:**
+- **ソースコード風コメントアウト**: `//` や `#` を使用してプロンプトの一部をコメントアウト（無効化）できます。
+- **改行の削除**: 複数行のテキストを1行に結合します。UI上では見やすく整理し、出力はクリーンに保つのに便利です。
+- **カンマ後の自動スペース**: すべてのカンマの後に必ずスペースが入るように自動整形します。
 
-**Usage:**
-1. Add "String Formatter (Prompt Utils)" node.
-2. Write your prompt with multiple lines and comments.
-3. Connect output to CLIP Text Encode or other string inputs.
+**使い方:**
+1. "String Formatter (Prompt Utils)" ノードを追加します。
+2. テキストフィールドに複数行でプロンプトを入力したり、コメントを追加したりします。
+3. 出力を CLIP Text Encode ノードなどの文字列入力に接続します。
