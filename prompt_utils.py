@@ -6,9 +6,6 @@ class StringFormatter:
         return {
             "required": {
                 "text": ("STRING", {"multiline": True, "dynamicPrompts": True}),
-                "remove_comments": ("BOOLEAN", {"default": True}),
-                "remove_newlines": ("BOOLEAN", {"default": True}),
-                "fix_commas": ("BOOLEAN", {"default": True}),
             }
         }
 
@@ -16,35 +13,73 @@ class StringFormatter:
     FUNCTION = "process"
     CATEGORY = "Numachang"
 
-    def process(self, text, remove_comments, remove_newlines, fix_commas):
+    def process(self, text):
         # 1. Remove comments
-        if remove_comments:
-            lines = text.split('\n')
-            new_lines = []
-            for line in lines:
-                # Remove // comments
-                if '//' in line:
-                    line = line.split('//')[0]
-                # Remove # comments
-                if '#' in line:
-                    line = line.split('#')[0]
-                new_lines.append(line)
-            text = '\n'.join(new_lines)
+        # Remove // comments (until next comma or end of line)
+        text = re.sub(r'//[^,\n]*,?', '', text)
+        # Remove # comments (until end of line)
+        text = re.sub(r'#[^\n]*', '', text)
 
         # 2. Fix commas (ensure space after comma)
-        if fix_commas:
-            # Replace comma followed by non-space with comma+space
-            # But exclude comma at end of string
-            text = re.sub(r',(?=[^\s])', ', ', text)
+        text = re.sub(r',(?=[^\s])', ', ', text)
 
-        # 3. Remove newlines
-        if remove_newlines:
-            # Replace newlines with space
-            text = text.replace('\n', ' ')
-            # Collapse multiple spaces
-            text = re.sub(r'\s+', ' ', text)
-        
+        # 3. Remove newlines and collapse spaces
+        text = text.replace('\n', ' ')
+        text = re.sub(r'\s+', ' ', text)
+
         # Cleanup
         text = text.strip()
-        
+
         return (text,)
+
+class StringConcatenate:
+    @classmethod
+    def INPUT_TYPES(s):
+        inputs = {
+            "required": {
+                "delimiter": ("STRING", {"default": ",", "multiline": False}),
+            },
+            "optional": {}
+        }
+        for i in range(1, 51):
+            inputs["optional"][f"text_{i}"] = ("STRING", {"multiline": True, "dynamicPrompts": True})
+        return inputs
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "concatenate"
+    CATEGORY = "Numachang"
+
+    def concatenate(self, delimiter, **kwargs):
+        texts = []
+        
+        # Handle delimiter escape sequences
+        if delimiter == "\\n":
+            delimiter_str = "\n"
+        else:
+            delimiter_str = delimiter
+            
+        # Sort keys
+        sorted_keys = sorted(kwargs.keys(), key=lambda k: int(k.split('_')[1]) if '_' in k and k.split('_')[1].isdigit() else 999)
+        
+        for key in sorted_keys:
+            if key.startswith("text_") and kwargs[key]:
+                val = kwargs[key]
+                if isinstance(val, list):
+                    val = str(val[0])
+                
+                val = val.strip()
+                # De-duplicate delimiter properties
+                # If delimiter is "," and text is "foo,", remove the trailing ","
+                # to avoid "foo,,bar"
+                if delimiter_str and delimiter_str.strip(): # Only if delimiter is not empty/whitespace safe?
+                     # Simple strip of delimiter from right checks
+                     # Actually user asked: "if same as delimiter is connected... delete one"
+                     # Safe approach: strip delimiter from both ends
+                     val = val.strip(delimiter_str)
+                     
+                if val:
+                    texts.append(val)
+
+        result = delimiter_str.join(texts)
+        return (result,)
+
